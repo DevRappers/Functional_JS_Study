@@ -1,0 +1,134 @@
+<script>const log = console.log;</script>
+
+<script>
+    const products = [
+        { name: '반팔티', price: 15000},
+        { name: '긴팔티', price: 20000},
+        { name: '핸드폰케이스', price: 15000},
+        { name: '후드티', price: 30000},
+        { name: '바지', price: 25000}
+    ];
+</script>
+
+# map
+ - 객체들이 들어가 있는 배열에서 특정 분류를 할때 자주 사용함.
+ - 예를 들어 가격만 뽑아낼때, 이름만 뽑아낼때 자주 사용함.
+
+<script>
+    const map = (f, iter) => {
+        let res = [];
+        for(const a of iter){
+            res.push(f(a));
+        }
+        return res;
+    };
+
+    // map함수를 쓰기 전
+    // 이름으로 분류
+    let names = [];
+    for(const p of products){
+        names.push(p.name);
+    }
+    log(names);
+
+    // 가격으로 분류
+    let prices = [];
+    for(const p of products){
+        prices.push(p.price);
+    }
+    log(prices);
+
+    // map함수를 써서 분류하기
+    log(map(p => p.name, products));
+    log(map(p => p.price, products));
+</script>
+
+# 이터러블 프로토콜을 따른 map의 다형성
+ - 기존의 자바스크립트의 내장 map은 array만 있지만 map을 만들어서 사용할 경우 어떤 iterator든 모두 사용할 수 있음.
+
+<script>
+    log(([1,2,3]).map(a=>a+1));
+
+    function *gen(){
+        yield 2;
+        yield 3;
+        yield 4;
+    }
+
+    log(map(a=> a*a, gen()));
+
+    let m = new Map();
+    m.set('a', 10);
+    m.set('b', 20);
+    log(new Map(map(([k,a]) => [k, a*2], m)));
+</script>
+
+# filter
+ - 특정 금액이나 특정 이름만 걸러내는 함수.
+ - 특정 조건으로 새로운 데이터를 뽑아냄.
+
+<script>
+    console.clear();
+
+    const filter = (f,iter) => {
+        let res = [];
+        for(const a of iter){
+            if(f(a)) res.push(a);
+        }
+        return res;
+    };
+
+    // 가격이 20000이하인 데이터 뽑아내기
+    let under20000 = [];
+    for(const p of products) {
+        if(p.price < 20000) under20000.push(p);
+    }
+    log(...under20000);
+
+    // 가격이 20000이상인 데이터 뽑아내기
+    let over20000 = [];
+    for(const p of products) {
+        if(p.price >= 20000) over20000.push(p);
+    }
+    log(...over20000);
+
+    log(...filter(p => p.price < 20000, products));
+    log(...filter(p => p.price >= 20000, products));
+</script>
+
+# reduce
+ - 값을 축약하는 함수
+ - 특정 함수를 이용해서 값을 누적할 때 자주 사용함.
+<script>
+    console.clear();
+
+    const nums = [1,2,3,4,5];
+
+    let total = 0;
+    for(const n of nums){
+        total += n;
+    }
+    log(total);
+
+    const reduce = (f, acc, iter) => {
+        if(!iter){
+            iter = acc[Symbol.iterator]();
+            acc = iter.next().value;
+        }
+        for(const a of iter){
+            acc = f(acc, a);
+        }
+        return acc;
+    };
+
+    const add = (a,b) => a+b;
+
+    // 사용방법
+    // 함수, 초기(누적값), iterator
+    log(reduce(add, 0, [1,2,3,4,5]));
+
+    // 이런 식으로 줬을 때 add,1, [2,3,4,5]가 되게 끔 구현.
+    log(reduce(add, [1,2,3,4,5]));
+
+    log(reduce((total_price, product) => total_price + product.price,0,products));
+</script>

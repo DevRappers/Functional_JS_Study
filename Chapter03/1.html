@@ -1,0 +1,65 @@
+<script>const log = console.log;</script>
+
+# 제네레이터/이터레이터
+ - 제네레이터 : 이터레이터이자 이터러블을 생성하는 함수 / 이터레이터를 return하는 함수
+
+<script>
+    // 제네레이터 함수는 이터레이터를 return하기 때문에 어떠한 값이든 다 순회가 가능하게 해주는 함수임.
+    function *gen(){
+        yield 1;
+        if(false) yield 2;
+        yield 3;
+        return 100;
+    }
+
+    let iter = gen();
+    log(iter.next());
+    log(iter.next());
+    log(iter.next());
+
+    for(const a of gen()) log(a);
+</script>
+
+# odds
+ - 홀수만 발생시키는 이터레이터 만들어보기 (제네레이터를 통해)
+
+<script>
+    console.clear();
+
+    // 제네레이터함수는 평가할때만 동작하기 때문에 무한루프로 브라우저가 멈추는 현상이 없음.
+    function *infinity(i=0){
+        while(true){
+            yield i++;
+        }
+    }
+
+    function *limit(l, iter){
+        for(const a of iter){
+            yield a;
+            if(a===l) return;
+        }
+    }
+
+    function *odds(l){
+        for(const a of limit(l,infinity(1))){
+            if(a%2) yield a;
+            if(a === l) return;
+        }
+    }
+
+    let iter2 = odds(10);
+    for(const a of iter2) log(a);
+    for(const b of odds(30)) log(b);
+</script>
+
+# for of, 전개 연산자, 구조분해, 나머지 연산자
+ - 이터러블 프로토콜을 따르는 기능.
+
+<script>
+    log(...odds(10));
+    log([...odds(10), ...odds(20)]);
+
+    const [head, ...tail] = odds(5);
+    log(head);
+    log(tail);
+</script>

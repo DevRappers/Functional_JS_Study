@@ -1,0 +1,84 @@
+<script src="lib/fx.js"></script>
+
+## range
+ - 숫자를 받고 해당숫자만큼에 해당하는 배열을 return 하는 함수
+
+<script>
+    const add = (a,b) => a+b;
+
+    const range = l => {
+        let i = -1;
+        let res = [];
+        while(++i < l){
+            res.push(i);
+        }
+        return res;
+    };
+
+    // [0,1,2,3,4]
+    log(range(5));
+
+    // [0,1]
+    log(range(2));
+
+    var list = range(4);
+    log(list);
+    log(reduce(add, list));
+</script>
+
+## 느긋한 L.range
+
+<script>
+    const L = {};
+
+    // 제네레이터 함수를 이용함.
+    L.range = function *(l){
+        let i = -1;
+        while(++i < l){
+           yield i;
+        }
+    };
+
+    // [0,1,2,3,4]
+    log(range(5));
+
+    // [0,1]
+    log(range(2));
+
+    var list = L.range(4);
+    // 이터레이터가 출력됨.
+    log(list);
+    // reduce함수가 이터러블을 받음.
+    // L.range를 이용했을 때는 미리 list를 만들지않고 reduce를 실행했을 때 생성함.
+    // 호출을 안하면 함수 내부로 안들어감. 즉 next를 할때만 호출되기 때문에 효율적임.
+    log(reduce(add, list));
+</script>
+
+<script>
+    function test(name, time, f) {
+        console.time(name);
+        while(time --) f();
+        console.timeEnd(name);
+    }
+    // test('range', 10, ()=> reduce(add, range(1000000)));
+    // test('L.range', 10, ()=> reduce(add, L.range(100000)));
+</script>
+
+## take
+ - 원하는 숫자만큼 가져오는 함수 / 숫자만큼 잘라서 가져오기
+<script>
+    console.clear();
+    const take = curry((l, iter) => {
+        let res = [];
+        for(const a of iter){
+            res.push(a);
+            if(res.length ===l) return res;
+        }
+        return res;
+    });
+
+    // range와 L.range로 했을 때의 차이점은 L.range는 앞의 take의 숫자만큼만 yield 하기 때문에
+    // 효율적임 그냥 range는 100개의 값을 미리 만들어놓기 때문에 비효율적임.
+    log(take(5, range(100)));
+    log(take(5, L.range(100)));
+</script>
