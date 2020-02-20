@@ -1,0 +1,36 @@
+<script src="./lib/fx.js"></script>
+
+## 지연 평가 + Promise - L.map, map, take
+
+<script>
+    go([1,2,3], map(a => Promise.resolve(a+10)), takeAll,log);
+</script>
+
+## Kleisli Composition - L.filter, filter, nop, take
+
+<script>
+    go([1,2,3,4,5,6],
+        L.map(a => Promise.resolve(a * a)),
+        L.filter(a => a % 2),
+        L.map(a => a*a),
+        take(2),
+        log
+    )
+</script>
+
+## reduce에서 nop 지원
+
+<script>
+    go([1, 2, 3, 4, 5, 6, 7, 8],
+        L.map(a => {
+            log(a);
+            return new Promise(resolve => setTimeout(() => resolve(a * a), 1000))
+        }),
+        L.filter(a => {
+            log(a);
+            return new Promise(resolve => setTimeout(() => resolve(a % 2), 1000))
+        }),
+        take(2),
+        //reduce(add),
+        log);
+</script>

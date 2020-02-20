@@ -21,6 +21,7 @@
       return new Promise(resolve => setTimeout(() => resolve(a+20), 100));
     }
 
+    // resolve를 만났을 경우 then으로 then안에 들어간 경우에는 resolve함수로 호출 reject를 만났을 경우에는 catch로 잡아냄.
     var b = add20(5).then(add20).then(add20).then(log);
     //log(b);
 </script>
@@ -89,7 +90,7 @@
 
     const fg = id => Promise.resolve(id).then(g).then(f);
 
-    fg(2).then(log);
+    fg(4).then(log).catch(log);
 
     //users.pop();
     //users.pop();
