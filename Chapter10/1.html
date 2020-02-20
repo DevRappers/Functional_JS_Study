@@ -1,0 +1,25 @@
+<script src="lib/fx.js"></script>
+
+## async/await
+
+<script>
+    function delay(time){
+        return new Promise(resolve => setTimeout(() => resolve(), time));
+    }
+
+    async function delayIdentity(a){
+       await delay(1000);
+       return a;
+    }
+
+    async function f1() {
+        // 안에서 하고 해결하다면 괜찮지만 return한다면 promise로 return하게 됨.
+        const a = await delayIdentity(10);
+        const b = await delayIdentity(5);
+
+        log(a+b);
+        return a+b;
+    }
+    // return 할때는 promise를 전달하게 되어있음.
+    f1().then(log);
+</script>
