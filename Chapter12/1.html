@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>01/1</title>
+    <script src="../fx.js"></script>
+</head>
+<body>
+## 명령형 습관 지우기 - 만능 reduce? No!
+
+1. reduce + 복잡한 함수 + acc 보다 map + 간단한 함수 + reduce
+
+<script>
+    const users = [
+        {name: 'AA', age: 35},
+        {name: 'BB', age: 26},
+        {name: 'CC', age: 28},
+        {name: 'CC', age: 34},
+        {name: 'EE', age: 23}
+    ];
+
+    console.log(_.reduce((total, u)=> total + u.age, 0, users));
+
+    console.log(_.reduce((a,b) => a+b, [1,2,3]));
+
+    const add = (a,b) => a+b;
+
+    const ages = L.map(u => u.age);
+
+    // 자주쓰는 함수들은 외부로 빼서 재사용가능하게 해주는 것이 좋음.
+    console.log(
+        _.reduce(add, ages(users))
+    );
+</script>
+
+2. reduce 하나 보다 map + filter + reduce
+
+<script>
+    console.log(
+        _.reduce((total, u) => u.age>= 30 ? total : total+u.age
+        , 0, users)
+    );
+
+    console.log(
+        _.reduce(add,
+            _.map(u => u.age,
+                _.filter(u => u.age < 30, users)
+            )
+        )
+    );
+
+    console.log(
+        _.reduce(add,
+            L.filter(n => n<30,
+                L.map(u => u.age, users)
+            )
+        )
+    );
+
+
+    const a=_.pipe(
+            _.filter(u => u.age<30),
+            _.map(u => u.age),
+            _.reduce(add)
+    );
+
+    console.log(a(users));
+</script>
+
+3. query, queryToObject
+
+<script>
+    const obj1 = {
+        a: 1,
+        b: undefined,
+        c: 'CC',
+        d: 'DD'
+    };
+
+    // a=1&c=CC&d=DD
+
+    function query1(obj){
+        let res = '';
+        for(const k in obj) {
+            const v = obj[k];
+            if (v === undefined) continue;
+            if (res !== '') res += '&';
+            res += k + '=' + v;
+        }
+        return res;
+    }
+    console.log(query1(obj1));
+
+    // Object.entries란 key value쌍으로 순회가 가능하게 만들어줌.
+    function query2(obj) {
+        return Object
+            .entries(obj)
+            .reduce((query,[k,v], i) => {
+                if(v === undefined) return query;
+                return `${query}${i > 0 ? '&' : ''}${k}=${v}`;
+            }, '')
+    }
+    console.log(query2(obj1));
+
+    const join = _.curry((sep, iter) => _.reduce((a,b) => `${a}${sep}${b}`,iter));
+
+    function query3(obj) {
+        return (
+            join('&',
+            _.map(([k,v]) => `${k}=${v}`,
+            _.reject(([_,v]) => v === undefined,
+            Object.entries(obj))
+        )));
+    }
+    console.log(query3(obj1));
+
+  const query4 = _.pipe(
+      Object.entries,
+      L.reject(([_, v]) => v === undefined),
+      L.map(join('=')),
+      join('&'));
+
+  console.log(query4(obj1));
+</script>
+
+4. queryToObject
+
+<script>
+    const split = _.curry((sep, str) => str.split(sep));
+
+    // Object.assign을 하면 하나의 객체로 합쳐짐.
+    const queryToObject = _.pipe(
+        split('&'),
+        _.map(split('=')),
+        _.map(([k,v]) => ({[k] : v})),
+        _.reduce(Object.assign)
+    );
+
+    console.log(queryToObject('a=1&c=CC&d=DD'));
+</script>
+</body>
+</html>
